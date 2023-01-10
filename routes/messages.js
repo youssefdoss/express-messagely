@@ -24,8 +24,6 @@ const Message = require('../models/message');
 router.get('/:id', ensureLoggedIn, async function(req, res) {
   const message = await Message.get(req.params.id);
   const username = res.locals.user.username;
-  console.log(message);
-  console.log(username);
 
   if (message.to_user.username !== username && message.from_user.username !== username) {
     throw new UnauthorizedError('Can only read messages to or from you');
@@ -70,7 +68,7 @@ router.post('/:id/read', ensureLoggedIn, async function(req, res) {
   message = await Message.markRead(req.params.id);
 
   return res.json({ message });
-})
+});
 
 
 module.exports = router;

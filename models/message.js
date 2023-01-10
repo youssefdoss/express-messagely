@@ -3,13 +3,18 @@
 /** Message class for message.ly */
 
 const { NotFoundError } = require("../expressError");
+const { ACCOUNT_SID, AUTH_TOKEN } = require('../config');
+const client = require('twilio')(ACCOUNT_SID, AUTH_TOKEN);
 const db = require("../db");
+const User = require('./user');
+
+const TWILIO_PHONE = '+17657198059';
 
 /** Message on the site. */
 
 class Message {
 
-  /** Register new message -- returns
+  /** Register new message and sends text alert -- returns
    *    {id, from_username, to_username, body, sent_at}
    */
 
@@ -23,8 +28,18 @@ class Message {
                ($1, $2, $3, current_timestamp)
              RETURNING id, from_username, to_username, body, sent_at`,
         [from_username, to_username, body]);
+    const message = result.rows[0];
+    const toUser = await User.get(to_username);
+    const toUserPhone = toUser.phone;
+    const sentMessage = await client.messages
+      .create({
+        body: `You received the following message from ${from_username}: "${message.body}"`,
+        from: TWILIO_PHONE,
+        to: `+1${toUserPhone}`
+      })
 
-    return result.rows[0];
+    console.log(sentMessage.sid);
+    return message;
   }
 
   /** Update read_at for message
