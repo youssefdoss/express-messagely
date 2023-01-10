@@ -27,7 +27,7 @@ function authenticateJWT(req, res, next) {
 function ensureLoggedIn(req, res, next) {
   try {
     if (!res.locals.user) {
-      throw new UnauthorizedError();
+      throw new UnauthorizedError('Must be logged in');
     } else {
       return next();
     }
@@ -42,7 +42,7 @@ function ensureCorrectUser(req, res, next) {
   try {
     if (!res.locals.user ||
         res.locals.user.username !== req.params.username) {
-      throw new UnauthorizedError();
+      throw new UnauthorizedError('You cannot view this');
     } else {
       return next();
     }
